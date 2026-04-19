@@ -482,6 +482,38 @@ def main():
     
     with tab3:
         if df is not None and len(df) > 0 and 'sales' in df.columns and 'date' in df.columns:
+            st.markdown("### 📊 Analysis Summary")
+            
+            avg_sales = df['sales'].mean()
+            total_sales = df['sales'].sum()
+            max_sales = df['sales'].max()
+            min_sales = df['sales'].min()
+            std_sales = df['sales'].std()
+            recent = df['sales'].tail(14).values
+            if len(recent) >= 7:
+                trend = (recent[-7:].mean() - recent[:7].mean()) / recent[:7].mean() * 100
+            else:
+                trend = 0
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Total Sales", f"{total_sales:,.0f}")
+            with col2:
+                st.metric("Avg Daily", f"{avg_sales:.1f}")
+            with col3:
+                st.metric("Peak", f"{max_sales:.0f}")
+            with col4:
+                st.metric("Min", f"{min_sales:.0f}")
+            
+            col5, col6, col7 = st.columns(3)
+            with col5:
+                st.metric("Std Dev", f"{std_sales:.1f}")
+            with col6:
+                st.metric("Days Analyzed", f"{len(df)}")
+            with col7:
+                st.metric("7-Day Trend", f"{trend:+.1f}%")
+            
+            st.markdown("---")
             st.markdown("### 📈 Detailed Analysis")
             
             col1, col2 = st.columns(2)
