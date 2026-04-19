@@ -387,7 +387,7 @@ def main():
                     y=upper + lower[::-1],
                     fill='toself',
                     fillcolor='rgba(238,108,77,0.2)',
-                    line=dict(color='transparent'),
+                    line=dict(color='rgba(238,108,77,0.2)'),
                     name='Confidence Interval',
                     showlegend=False
                 ))
