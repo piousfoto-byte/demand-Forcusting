@@ -226,6 +226,37 @@ def get_bot_response(user_input, forecast_data, historical_data):
         else:
             response = "No data available."
     
+    elif any(word in user_input for word in ['summary', 'overview', 'report']):
+        if historical_data and forecast_data:
+            avg_sales = historical_data['sales'].mean()
+            total_sales = historical_data['sales'].sum()
+            max_sales = historical_data['sales'].max()
+            min_sales = historical_data['sales'].min()
+            recent = historical_data['sales'].tail(14).values
+            trend = np.polyfit(range(len(recent)), recent, 1)[0]
+            trend_dir = "📈 Upward" if trend > 0 else "📉 Downward"
+            avg_forecast = np.mean(forecast_data)
+            
+            response = f"""📊 **Demand Forecasting Summary**
+
+**Historical Data:**
+- 📅 Period: {historical_data['date'].min().strftime('%Y-%m-%d')} to {historical_data['date'].max().strftime('%Y-%m-%d')}
+- 💰 Total Sales: **{total_sales:,.0f} units**
+- 📊 Average Daily: **{avg_sales:.1f} units**
+- 📈 Peak: **{max_sales:.0f} units**
+- 📉 Lowest: **{min_sales:.0f} units**
+- Trend: **{trend_dir}** ({abs(trend):.1f}/day)
+
+**Forecast ({len(forecast_data)} days):**
+- Predicted Average: **{avg_forecast:.0f} units**/day
+- Expected Range: **{min(forecast_data):.0f}** - **{max(forecast_data):.0f} units**
+- 📦 Recommended Inventory: **{int(avg_forecast * 1.2)} units**
+"""
+        elif historical_data:
+            response = "Generate a forecast first to see the complete summary."
+        else:
+            response = "Upload or generate data to see a summary."
+    
     elif any(word in user_input for word in ['low', 'minimum', 'lowest']):
         if historical_data:
             min_val = historical_data['sales'].min()
