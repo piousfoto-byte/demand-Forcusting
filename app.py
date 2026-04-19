@@ -339,54 +339,41 @@ def main():
     tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "💬 Chatbot", "📈 Analysis"])
     
     with tab1:
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            if df is not None and len(df) > 0 and 'sales' in df.columns:
-                avg_sales = df['sales'].mean()
-                st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-value">{avg_sales:.0f}</div>
-                    <div class="metric-label">Avg Daily Sales</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        with col2:
-            if df is not None and len(df) > 0 and 'sales' in df.columns:
-                recent = df['sales'].tail(7).mean()
-                prev = df['sales'].iloc[-14:-7].mean()
-                change = ((recent - prev) / prev * 100) if prev > 0 else 0
-                trend_icon = "↗️" if change > 0 else "↘️"
-                st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-value">{trend_icon} {abs(change):.1f}%</div>
-                    <div class="metric-label">7-Day Trend</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        with col3:
-            if df is not None and len(df) > 0 and 'sales' in df.columns:
-                max_sales = df['sales'].max()
-                st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-value">{max_sales:.0f}</div>
-                    <div class="metric-label">Peak Demand</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        with col4:
-            if df is not None and len(df) > 0 and 'sales' in df.columns:
-                std_dev = df['sales'].std()
-                st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-value">{std_dev:.1f}</div>
-                    <div class="metric-label">Volatility</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
         if df is not None and len(df) > 0 and 'sales' in df.columns and 'date' in df.columns:
+            st.markdown("### 📊 Quick Summary")
+            
+            avg_sales = df['sales'].mean()
+            total_sales = df['sales'].sum()
+            max_sales = df['sales'].max()
+            min_sales = df['sales'].min()
+            std_dev = df['sales'].std()
+            recent = df['sales'].tail(7).mean()
+            prev = df['sales'].iloc[-14:-7].mean() if len(df) >= 14 else df['sales'].iloc[0]
+            change = ((recent - prev) / prev * 100) if prev > 0 else 0
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Total Sales", f"{total_sales:,.0f}")
+            with col2:
+                st.metric("Avg Daily", f"{avg_sales:.0f}")
+            with col3:
+                st.metric("Peak", f"{max_sales:.0f}")
+            with col4:
+                st.metric("Min", f"{min_sales:.0f}")
+            
+            col5, col6, col7, col8 = st.columns(4)
+            with col5:
+                st.metric("Std Dev", f"{std_dev:.1f}")
+            with col6:
+                st.metric("Days", f"{len(df)}")
+            with col7:
+                st.metric("7-Day Trend", f"{change:+.1f}%", delta=f"{change:.1f}", delta_color="normal")
+            with col8:
+                st.metric("Last Date", df['date'].iloc[-1].strftime('%m/%d'))
+            
+            st.markdown("---")
+            st.markdown("### 📈 Forecast Chart")
+            
             forecast = simple_forecast(df, forecast_horizon)
             if forecast:
                 st.session_state.forecast_data = forecast
