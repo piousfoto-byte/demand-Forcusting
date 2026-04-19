@@ -456,11 +456,15 @@ def main():
             col1, col2 = st.columns(2)
             
             with col1:
+                daily_avg = df.groupby(df['date'].dt.dayofweek)['sales'].mean().reset_index()
+                daily_avg.columns = ['dayofweek', 'sales']
+                day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                daily_avg['day'] = daily_avg['dayofweek'].map(lambda x: day_names[x])
                 fig_bar = px.bar(
-                    df.groupby(df['date'].dt.dayofweek)['sales'].mean().reset_index(),
-                    x=0, y='sales',
+                    daily_avg,
+                    x='day', y='sales',
                     title="Average Sales by Day of Week",
-                    labels={'0': 'Day', 'sales': 'Avg Sales'}
+                    labels={'day': 'Day', 'sales': 'Avg Sales'}
                 )
                 fig_bar.update_layout(
                     template="plotly_dark",
